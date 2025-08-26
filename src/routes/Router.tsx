@@ -1,5 +1,5 @@
 import React from 'react'
-import { BrowserRouter, Route, Routes, Navigate, useLocation } from 'react-router-dom'
+import { HashRouter, Route, Routes, Navigate, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import Home from '../pages/Home'
 import Chat from '../pages/Chat'
@@ -55,8 +55,8 @@ function RouterContent() {
 
 export default function Router() {
   return (
-    <BrowserRouter>
+    <HashRouter>
       <RouterContent />
-    </BrowserRouter>
+    </HashRouter>
   )
 }

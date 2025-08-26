@@ -18,6 +18,9 @@ console.log('---');
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+// Trust proxy for Render deployment
+app.set('trust proxy', 1);
+
 // Enhanced security middleware - Will be configured after allowedOrigins is defined
 
 // Enhanced CORS configuration - Dynamic origin handling
@@ -36,6 +39,8 @@ const allowedOrigins = [
 
 // Log allowed origins for debugging
 console.log('🌐 Allowed CORS Origins:', allowedOrigins);
+console.log('🌐 FRONTEND_URL from env:', process.env.FRONTEND_URL);
+console.log('🌐 Parsed frontend URLs:', parseFrontendUrls(process.env.FRONTEND_URL));
 console.log('---');
 
 // Enhanced security middleware - Now configured after allowedOrigins is defined
@@ -56,14 +61,22 @@ app.use(helmet({
 
 app.use(cors({
   origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
+    console.log(`🌐 CORS check for origin: ${origin}`);
+    console.log(`🌐 Allowed origins:`, allowedOrigins);
     
-    if (allowedOrigins.indexOf(origin) !== -1) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) {
+      console.log('🌐 No origin - allowing request');
+      return callback(null, true);
+    }
+    
+    // Check if origin is in allowed list
+    if (allowedOrigins.includes(origin)) {
+      console.log(`🌐 Origin ${origin} is allowed`);
       callback(null, true);
     } else {
       console.log(`🚫 CORS blocked origin: ${origin}`);
-      callback(new Error('Not allowed by CORS'));
+      callback(null, false); // Don't throw error, just block
     }
   },
   credentials: true,
@@ -92,7 +105,7 @@ app.use('/api/', limiter);
 const chatLimiter = rateLimit({
   windowMs: 24 * 60 * 60 * 1000, // 24 hours
   max: 5, // 5 messages per day
-  keyGenerator: (req) => req.userId || req.ip, // Use authenticated user ID
+  keyGenerator: (req) => req.userId || req.ip || req.connection.remoteAddress, // Use authenticated user ID or IP
   message: { error: 'Daily message limit reached. Please try again tomorrow.' },
   standardHeaders: true,
   legacyHeaders: false,
@@ -248,7 +261,17 @@ Remember: You are speaking as Bappa, the loving father figure who removes obstac
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-  console.error('Server Error:', err.stack);
+  console.error('Server Error:', err);
+  console.error('Error stack:', err.stack);
+  
+  // Handle CORS errors specifically
+  if (err.message && err.message.includes('CORS')) {
+    return res.status(403).json({ 
+      error: 'CORS policy violation',
+      code: 'CORS_ERROR'
+    });
+  }
+  
   res.status(500).json({ 
     error: 'Something went wrong on the server.',
     code: 'INTERNAL_SERVER_ERROR'
