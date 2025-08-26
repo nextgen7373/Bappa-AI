@@ -67,12 +67,13 @@ app.use(cors({
       return callback(null, true);
     }
     
-    if (allowedOrigins.indexOf(origin) !== -1) {
+    // Check if origin is in allowed list
+    if (allowedOrigins.includes(origin)) {
       console.log(`🌐 Origin ${origin} is allowed`);
       callback(null, true);
     } else {
       console.log(`🚫 CORS blocked origin: ${origin}`);
-      callback(new Error('Not allowed by CORS'));
+      callback(null, false); // Don't throw error, just block
     }
   },
   credentials: true,
@@ -257,7 +258,17 @@ Remember: You are speaking as Bappa, the loving father figure who removes obstac
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-  console.error('Server Error:', err.stack);
+  console.error('Server Error:', err);
+  console.error('Error stack:', err.stack);
+  
+  // Handle CORS errors specifically
+  if (err.message && err.message.includes('CORS')) {
+    return res.status(403).json({ 
+      error: 'CORS policy violation',
+      code: 'CORS_ERROR'
+    });
+  }
+  
   res.status(500).json({ 
     error: 'Something went wrong on the server.',
     code: 'INTERNAL_SERVER_ERROR'
