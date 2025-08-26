@@ -22,7 +22,7 @@ function RouterContent() {
       <main className="flex-1">
         <AnimatePresence mode="wait">
           <motion.div
-            key={location.hash}
+            key={location.pathname}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
@@ -32,15 +32,15 @@ function RouterContent() {
             <Routes location={location}>
               <Route path="/" element={<Home />} />
               <Route
-                path="chat"
+                path="/chat"
                 element={
                   <ProtectedRoute>
                     <Chat />
                   </ProtectedRoute>
                 }
               />
-              <Route path="404" element={<NotFound />} />
-              <Route path="*" element={<Navigate to="404" replace />} />
+              <Route path="/404" element={<NotFound />} />
+              <Route path="*" element={<Navigate to="/404" replace />} />
             </Routes>
           </motion.div>
         </AnimatePresence>
