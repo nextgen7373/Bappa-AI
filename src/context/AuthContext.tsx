@@ -28,18 +28,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           return
         }
 
-        const { data, error } = await supabase.auth.getUser()
-        console.log('🔍 AuthContext: getUser result:', { user: data.user, error })
-        if (error) {
-          console.error('Auth error:', error)
-          triggerFallback("Authentication service is unavailable. Please try again later.", true)
+        // First try to get the current session
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+        
+        if (sessionError) {
+          console.error('Session error:', sessionError)
+          // Don't show error for missing session - this is normal for new users
+        }
+        
+        if (session?.user) {
+          console.log('🔍 AuthContext: Found existing session:', session.user)
+          setUser(session.user)
         } else {
-          console.log('🔍 AuthContext: Setting user:', data.user)
-          setUser(data.user ?? null)
+          console.log('🔍 AuthContext: No existing session found - user needs to sign in')
+          setUser(null)
         }
       } catch (error) {
         console.error('Auth error:', error)
-        triggerFallback("Bappa is experiencing some difficulties. Please try again in a moment.", true)
+        // Don't show error for missing session - this is normal for new users
+        setUser(null)
       } finally {
         setLoading(false)
       }
@@ -55,21 +62,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           return
         }
         
+        console.log('🔍 AuthContext: Auth state change:', event, session?.user?.email)
         setUser(session?.user ?? null)
         
         // Generate JWT token when user signs in
         if (event === 'SIGNED_IN' && session?.user) {
+          console.log('🔍 AuthContext: User signed in, refreshing token')
           await refreshAuthToken()
         }
         
         // Clear JWT token when user signs out
         if (event === 'SIGNED_OUT') {
+          console.log('🔍 AuthContext: User signed out, clearing tokens')
           localStorage.removeItem('bappa_auth_token')
           sessionStorage.removeItem('bappa_auth_token')
         }
       } catch (error) {
         console.error('Auth state change error:', error)
-        triggerFallback("Authentication service is unavailable. Please try again later.", true)
+        // Don't show error for auth state changes - this is normal
       }
     })
 
@@ -85,7 +95,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return
       }
 
-      const { error } = await supabase.auth.signInWithOAuth({ provider: 'google' })
+      const { error } = await supabase.auth.signInWithOAuth({ 
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`
+        }
+      })
+      
       if (error) {
         console.error('Google sign-in error:', error)
         triggerFallback("Unable to sign in with Google. Please try again.", true)

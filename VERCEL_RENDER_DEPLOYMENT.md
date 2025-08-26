@@ -35,11 +35,11 @@
 4. **Connect your GitHub repository**
 5. **Configure the service:**
 
-   **Basic Settings:**
+   **⚠️ CRITICAL SETTINGS:**
    - **Name**: `bappa-ai-backend`
    - **Region**: Choose closest to your users
    - **Branch**: `main`
-   - **Root Directory**: `backend`
+   - **Root Directory**: `backend` ← **MUST BE SET TO `backend`**
    - **Runtime**: `Node`
    - **Build Command**: `npm install`
    - **Start Command**: `npm start`
@@ -152,6 +152,11 @@
 - Check Render logs
 - Verify environment variables
 - Check if service is running
+
+#### **"Missing script: start" Error:**
+- **Root Directory MUST be set to `backend`** in Render settings
+- This error occurs when Render tries to run `npm start` from the root instead of the backend directory
+- Double-check the Root Directory setting in your Render service configuration
 
 ---
 
