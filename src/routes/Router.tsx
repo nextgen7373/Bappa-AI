@@ -30,7 +30,10 @@ function RouterContent() {
             className="h-full"
           >
             <Routes location={location}>
+              {/* Public Routes */}
               <Route path="/" element={<Home />} />
+              
+              {/* Protected Routes */}
               <Route
                 path="/chat"
                 element={
@@ -39,7 +42,12 @@ function RouterContent() {
                   </ProtectedRoute>
                 }
               />
+              
+              {/* Error Routes */}
               <Route path="/404" element={<NotFound />} />
+              <Route path="/not-found" element={<NotFound />} />
+              
+              {/* Catch All - Redirect to 404 */}
               <Route path="*" element={<Navigate to="/404" replace />} />
             </Routes>
           </motion.div>

@@ -2,10 +2,15 @@ import React from 'react'
 import { motion } from 'framer-motion'
 import GoogleLoginButton from '../components/GoogleLoginButton'
 import { useAuth } from '../context/AuthContext'
-import { Link } from 'react-router-dom'
+import { Link, Navigate } from 'react-router-dom'
 
 export default function Home(){
   const { user } = useAuth()
+  
+  // If user is already logged in, redirect to chat
+  if (user) {
+    return <Navigate to="/chat" replace />
+  }
   
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -98,64 +103,12 @@ export default function Home(){
           Made with ❤️ by NextGen World
         </motion.p>
         
-        {/* Action Button */}
+        {/* Action Button - Only show Google Login for non-authenticated users */}
         <motion.div 
           variants={itemVariants}
           className="flex justify-center"
         >
-          {user ? (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.5 }}
-            >
-              <Link 
-                to="/chat" 
-                className="group relative px-10 py-5 rounded-3xl bg-gradient-to-r from-brand-primary via-brand-secondary to-brand-primary text-white font-bold text-lg shadow-premium hover:shadow-glow transition-all duration-300 overflow-hidden border-2 border-white/20 inline-flex items-center gap-4"
-              >
-                {/* Animated background gradient */}
-                <div className="absolute inset-0 bg-gradient-to-r from-brand-secondary via-brand-primary to-brand-secondary opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                
-                {/* Shimmer effect */}
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
-                
-                {/* Button content */}
-                <div className="relative flex items-center gap-4">
-                  {/* Chat icon with animation - using original emoji color */}
-                  <motion.div
-                    animate={{ 
-                      scale: [1, 1.1, 1],
-                      rotate: [0, 5, -5, 0]
-                    }}
-                    transition={{ 
-                      duration: 2, 
-                      repeat: Infinity, 
-                      ease: "easeInOut" 
-                    }}
-                    className="text-2xl"
-                  >
-                    💬
-                  </motion.div>
-                  
-                  {/* Button text */}
-                  <span className="font-bold tracking-wide">Start Chatting with Bappa</span>
-                  
-                  {/* Arrow icon */}
-                  <motion.div
-                    animate={{ x: [0, 3, 0] }}
-                    transition={{ duration: 1.5, repeat: Infinity }}
-                    className="w-5 h-5"
-                  >
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                    </svg>
-                  </motion.div>
-                </div>
-              </Link>
-            </motion.div>
-          ) : (
-            <GoogleLoginButton />
-          )}
+          <GoogleLoginButton />
         </motion.div>
       </motion.div>
     </section>
