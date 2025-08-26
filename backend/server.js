@@ -36,6 +36,8 @@ const allowedOrigins = [
 
 // Log allowed origins for debugging
 console.log('🌐 Allowed CORS Origins:', allowedOrigins);
+console.log('🌐 FRONTEND_URL from env:', process.env.FRONTEND_URL);
+console.log('🌐 Parsed frontend URLs:', parseFrontendUrls(process.env.FRONTEND_URL));
 console.log('---');
 
 // Enhanced security middleware - Now configured after allowedOrigins is defined
@@ -56,10 +58,17 @@ app.use(helmet({
 
 app.use(cors({
   origin: function (origin, callback) {
+    console.log(`🌐 CORS check for origin: ${origin}`);
+    console.log(`🌐 Allowed origins:`, allowedOrigins);
+    
     // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
+    if (!origin) {
+      console.log('🌐 No origin - allowing request');
+      return callback(null, true);
+    }
     
     if (allowedOrigins.indexOf(origin) !== -1) {
+      console.log(`🌐 Origin ${origin} is allowed`);
       callback(null, true);
     } else {
       console.log(`🚫 CORS blocked origin: ${origin}`);
