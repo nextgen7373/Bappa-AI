@@ -8,6 +8,7 @@ import { useAuth } from '../context/AuthContext'
 import { ChatProvider } from '../context/ChatContext'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Link } from 'react-router-dom'
+import type { Message } from '../types'
 
 function ChatContent() {
   const { messages, send, remaining, isTyping, isLoading } = useChat()
@@ -148,7 +149,7 @@ function ChatContent() {
               </motion.div>
             ) : (
               <AnimatePresence>
-                {messages.map((message, index) => (
+                {messages.map((message: Message, index: number) => (
                   <motion.div
                     key={message.id}
                     initial={{ opacity: 0, y: 20 }}

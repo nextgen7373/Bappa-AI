@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react'
-import { useOnline } from '../utils/net'
+import { useOnline } from '../hooks/useOnline'
 
 interface OfflineContextType {
   isOffline: boolean

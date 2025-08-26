@@ -20,7 +20,7 @@ class Logger {
   private isProduction: boolean;
 
   constructor() {
-    this.isProduction = import.meta.env.PROD;
+    this.isProduction = import.meta.env.MODE === 'production';
     this.logLevel = this.isProduction ? LogLevel.INFO : LogLevel.DEBUG;
   }
 
